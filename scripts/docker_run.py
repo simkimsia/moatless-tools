@@ -64,9 +64,8 @@ async def run_docker_evaluation(
         os.environ["MOATLESS_DIR"] = str(Path("./.moatless").absolute())
         logger.info(f"Setting MOATLESS_DIR to {os.environ['MOATLESS_DIR']}")
 
-    # Validate that both model_id and litellm_model_name are not provided
-    if model_id and litellm_model_name:
-        raise ValueError("Cannot provide both model_id and litellm_model_name")
+    # Validation is now handled in argument parsing
+    # model_id and litellm_model_name are mutually exclusive
 
     storage, eventbus, flow_manager, base_dir = await setup_environment()
 
@@ -209,8 +208,13 @@ def main():
     args = parser.parse_args()
 
     # Handle backward compatibility and validation
-    model_id = args.model_id or args.model
-    litellm_model_name = args.litellm_model_name
+    # If litellm_model_name is provided, don't set model_id to avoid conflicts
+    if args.litellm_model_name:
+        model_id = None
+        litellm_model_name = args.litellm_model_name
+    else:
+        model_id = args.model_id or args.model
+        litellm_model_name = None
 
     if args.model_id and args.model != "gpt-4o-mini-2024-07-18":  # Default value check
         print("Error: Cannot specify both --model and --model-id")
