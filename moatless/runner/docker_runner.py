@@ -243,8 +243,9 @@ class DockerRunner(BaseRunner):
             # Create command to run Docker container
             cmd = ["docker", "run", "--name", container_name, "-d"]
 
-            # Add network to connect to docker-compose services (like Redis)
-            cmd.extend(["--network", self.network_name])
+            # Use host network to access Ollama and other host services
+            # This allows the container to connect to localhost:11434 (Ollama)
+            cmd.extend(["--network", "host"])
 
             # Add platform flag based on architecture configuration
             if self.is_arm64 and self.architecture == "x86_64":
