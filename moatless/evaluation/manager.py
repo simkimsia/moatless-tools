@@ -93,7 +93,14 @@ class EvaluationManager:
             flow_id=flow_id, flow_config=flow_config, model_id=model_id, litellm_model_name=litellm_model_name
         )
         
-        model_id = flow.agent.completion_model.model
+        # Use litellm_model_name if provided, otherwise use the flow's model
+        # This allows overriding the flow's hardcoded model_id with a litellm model name
+        if litellm_model_name:
+            model_id = litellm_model_name
+            logger.info(f"Using litellm model name override: {litellm_model_name}")
+        else:
+            model_id = flow.agent.completion_model.model
+            logger.info(f"Using flow's default model: {model_id}")
 
         evaluation = Evaluation(
             evaluation_name=evaluation_name,
