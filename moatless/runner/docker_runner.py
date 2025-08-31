@@ -3,27 +3,25 @@ import logging
 import os
 import platform
 import re
-import subprocess
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Optional, Dict, Tuple, List, Deque, NamedTuple
+from typing import Optional, Tuple
 
 from moatless.runner.label_utils import (
-    create_job_args,
-    sanitize_label,
     create_docker_label_args,
+    create_job_args,
     create_labels,
     create_resource_id,
+    sanitize_label,
 )
 from moatless.runner.runner import (
     BaseRunner,
+    JobDetails,
+    JobDetailSection,
     JobInfo,
-    JobsStatusSummary,
     JobStatus,
     RunnerInfo,
     RunnerStatus,
-    JobDetails,
-    JobDetailSection,
 )
 from moatless.telemetry import extract_trace_context
 
@@ -99,7 +97,7 @@ class DockerRunner(BaseRunner):
         # Determine if running on ARM64 architecture
         self.is_arm64 = platform.machine().lower() in ["arm64", "aarch64"]
 
-        logger.info(f"Docker runner initialized with:")
+        logger.info("Docker runner initialized with:")
         logger.info(f"  - Source dir: {self.moatless_source_dir}")
         logger.info(f"  - Components path: {self.components_path}")
         logger.info(f"  - Moatless dir: {self.moatless_dir}")
@@ -109,11 +107,11 @@ class DockerRunner(BaseRunner):
 
         # Log platform strategy
         if self.is_arm64 and self.architecture == "x86_64":
-            logger.info(f"  - Platform strategy: Will use --platform=linux/amd64 for x86_64 images on ARM64 host")
+            logger.info("  - Platform strategy: Will use --platform=linux/amd64 for x86_64 images on ARM64 host")
         elif self.architecture == "arm64":
-            logger.info(f"  - Platform strategy: Will use --platform=linux/arm64 for native ARM64 images")
+            logger.info("  - Platform strategy: Will use --platform=linux/arm64 for native ARM64 images")
         else:
-            logger.info(f"  - Platform strategy: Will use Docker default platform")
+            logger.info("  - Platform strategy: Will use Docker default platform")
 
         if self.memory_limit:
             logger.info(f"  - Memory limit: {self.memory_limit}")
@@ -251,14 +249,14 @@ class DockerRunner(BaseRunner):
             if self.is_arm64 and self.architecture == "x86_64":
                 # Force AMD64 platform when running x86_64 images on ARM64 host
                 cmd.extend(["--platform=linux/amd64"])
-                logger.info(f"Using AMD64 platform for x86_64 image on ARM64 host")
+                logger.info("Using AMD64 platform for x86_64 image on ARM64 host")
             elif self.architecture == "arm64":
                 # Use ARM64 platform when specifically configured for ARM64 images
                 cmd.extend(["--platform=linux/arm64"])
-                logger.info(f"Using ARM64 platform for arm64 image")
+                logger.info("Using ARM64 platform for arm64 image")
             else:
                 # No platform specified - let Docker use the default
-                logger.info(f"Using default platform (no --platform flag)")
+                logger.info("Using default platform (no --platform flag)")
 
             # Add memory limits if specified
             effective_memory_limit = memory_limit or self.memory_limit
@@ -272,7 +270,7 @@ class DockerRunner(BaseRunner):
             elif effective_memory_limit:
                 # If memory limit is set but swap limit is not, default to twice the memory limit
                 cmd.extend(["--memory-swap", effective_memory_limit])
-            
+
             # Add ulimit for file descriptors to prevent "Too many open files" errors
             cmd.extend(["--ulimit", "nofile=65536:65536"])
 
@@ -321,7 +319,7 @@ class DockerRunner(BaseRunner):
             # If using local source, sync dependencies first (not frozen) to use local lockfile
             if self.moatless_source_dir:
                 run_command += "cd /opt/moatless && uv sync --compile-bytecode --all-extras && "
-            
+
             # Add the main job command
             run_command += f"date '+%Y-%m-%d %H:%M:%S' && echo 'Starting job at ' $(date '+%Y-%m-%d %H:%M:%S') && uv run - <<EOF\n{args}\nEOF"
 

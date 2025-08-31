@@ -6,13 +6,14 @@ This script provides a simplified interface to run a Moatless evaluation
 in a Docker container using the DockerRunner.
 """
 
-import asyncio
 import argparse
+import asyncio
 import datetime
 import logging
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 from moatless.runner.job_wrappers import run_evaluation_instance
@@ -20,10 +21,10 @@ from moatless.runner.job_wrappers import run_evaluation_instance
 # Add the project root to the path so we can import moatless
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from moatless.runner.docker_runner import DockerRunner
+import moatless.settings as settings
 from moatless.evaluation.manager import EvaluationManager
 from moatless.flow.manager import FlowManager
-import moatless.settings as settings
+from moatless.runner.docker_runner import DockerRunner
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +197,7 @@ def main():
         "--litellm-model-name",
         help="LiteLLM model name to use (overrides only the model field of existing completion model)",
     )
-    parser.add_argument("--flow", "-f",  help="Flow ID to use")
+    parser.add_argument("--flow", "-f", help="Flow ID to use")
     parser.add_argument(
         "--use-local",
         "-l",
