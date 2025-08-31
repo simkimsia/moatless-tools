@@ -100,7 +100,7 @@
         },
         "qwen-ollama": {
             "completion_model_class": "moatless.completion.react.ReActCompletionModel",
-            "model": "ollama/hf.co/unsloth/Qwen3-8B-GGUF:UD-Q4_K_XL",
+            "model": "ollama/hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q8_K_XL",
             "model_base_url": "http://localhost:11434",
             "temperature": 0.0,
             "max_tokens": 4000,
